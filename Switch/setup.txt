@@ -1,0 +1,15 @@
+#Configure the parameters
+
+#Evolution parameters
+genomes = 5000
+
+genes = 8 
+
+generations = 1
+
+# Save settings
+
+filepath = '/Users/renhori/Desktop/Twente/Year2/Thesis/Dummy/test'
+name = 'test'
+
+datachecker = '/Users/renhori/Desktop/Twente/Year2/Thesis/Dummy'
