@@ -18,3 +18,5 @@ class GeneMatrix(object):
 
 		#self.pool = random.rand(genes,genomes)
 		#self.fitness = np.empty(genomes)
+
+		#testcomment
