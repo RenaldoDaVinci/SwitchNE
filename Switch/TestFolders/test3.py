@@ -5,19 +5,18 @@ This is a rudimentary model of switch network python code, the first row is dedi
 
 #import necessary libraries
 import time
-import Evo as Evo
+#import Evo as Evo
 import numpy as np
 import operator
 from time import sleep
 import serial
-import SaveLibrary as SaveLib
+#import SaveLibrary as SaveLib
 
 #open the set up files, this is not fully incorporated yet (needs to figure out how to sort out the each procedures)
-exec(open("setup.txt").read())
-#Initialize the serial connection to the arduino
-#ser = serial.Serial(port='/dev/cu.usbmodem1411',baudrate=9600,parity=serial.PARITY_NONE,bytesize=serial.EIGHTBITS)
-#Initialize the directory to save the files
-savedirectory = SaveLib.createSaveDirectory(filepath, name)
+
+generations = 25
+genomes = 10
+genes = 8
 #generate necessary arrays to save the datas
 
 
@@ -148,10 +147,6 @@ for m in range(generations):
 	run = run + 1
 	print('with a fitness score of ' + str(F))
 	Hermafrodite = NewGenConfigs[winner]
-
-	#Save the generation result
-	SaveLib.saveMain(savedirectory, genearray, outputarray, fitnessarray, successarray)
-
 	#Mutation
 	#Winner remains = 1
 	NewGenConfigs[0] = Hermafrodite
@@ -159,8 +154,8 @@ for m in range(generations):
 	#Mutate with 10% chance
 	for i in range(1, 8):
 		templist = Hermafrodite
-		duplicate = True
-		while(duplicate):
+		swag = True
+		while(swag):
 			for j in range(genes):
 				for k in range(genes):
 					if(np.random.rand() < 0.2):
@@ -175,12 +170,13 @@ for m in range(generations):
 						stack = stack + 1
 			if stack < 1:
 				NewGenConfigs[i] = templist
-				duplicate = False
+				swag = False
+
 
 	#complete random 
 	for i in range(8,10):
-		duplicate = True
-		while(duplicate):
+		swag = True
+		while(swag):
 			templist = np.random.rand(genes,genes)
 			templist = np.around(templist)
 			stack = 0
@@ -189,7 +185,19 @@ for m in range(generations):
 					if np.array_equal(templist, genearray[a][b]):
 						stack = stack + 1
 			if stack < 1:
+				swag = False
 				NewGenConfigs[i] = templist
-				duplicate = False		
 
-#Repeat until all generations meet 
+slo = 0
+for a in range(len(genearray)):
+    for b in range(len(genearray[a])):
+        dupcheck = genearray[a][b]
+        stack = 0
+        for c in range(len(genearray)):
+            for d in range(len(genearray[c])):
+                if np.array_equal(dupcheck, genearray[c][d]):
+                    stack = stack + 1
+        if stack >=2:
+            slo = slo + 1
+print('number of duplicates are:')
+print(slo)
