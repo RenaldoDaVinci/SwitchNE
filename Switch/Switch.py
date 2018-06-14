@@ -9,13 +9,20 @@ import Evo as Evo
 import numpy as np
 import operator
 from time import sleep
+from instrument import Keith2400
 import serial
 import SaveLibrary as SaveLib
+#setup keithley
+keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
+#set the compliance current
+keithley.compliancei.set(1E-6)
+#set the voltage (in volts)
+keithley.volt.set(1)
 
 #open the set up files, this is not fully incorporated yet (needs to figure out how to sort out the each procedures)
 exec(open("setup.txt").read())
 #Initialize the serial connection to the arduino
-#ser = serial.Serial(port='/dev/cu.usbmodem1411',baudrate=9600,parity=serial.PARITY_NONE,bytesize=serial.EIGHTBITS)
+ser = serial.Serial(port='/dev/cu.usbmodem1411',baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 10)
 #Initialize the directory to save the files
 savedirectory = SaveLib.createSaveDirectory(filepath, name)
 #generate necessary arrays to save the datas
@@ -49,8 +56,8 @@ for m in range(generations):
 		#Sanity Check
 		#print(bytelist)
 
-		#Send 8 byte info to the switch
-		#ser.write(bytelist)
+		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
+		ser.write(bytelist)
 		#print (ser.readline())
 
 
@@ -63,12 +70,17 @@ for m in range(generations):
 				bytelist[0] = evaluateinput[a]
 				#set the last byte(output) into only one port opening
 				bytelist[7] = evaluateinput[b]
-				#sleep
+				#send a bytelist where the first and the last lines are modified, input and output path
+				ser.write(bytelist)
+				#I like sleeping
+				time.sleep(0.5)
 				#Read current values, store into an output array
+				current = keithley.curr.get()
+				Outputresult[a][b] = current
 
 		#suppose we have an output result:
-		Outputresult = np.random.rand(genes,genes)
-		TransOutputresult = np.transpose(Outputresult)
+		#Outputresult = np.random.rand(genes,genes)
+		#TransOutputresult = np.transpose(Outputresult)
 		F = 0
 		success = 0
 		#Tolerance. if set 0.5, it considers any output that has more than 50% of the highest current as "non-distinguishable"
