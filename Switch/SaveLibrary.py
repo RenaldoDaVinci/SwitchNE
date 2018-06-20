@@ -24,3 +24,16 @@ def saveArrays(filepath, genearray, outputarray, fitnessarray, successarray):
 
 def saveConfig(filepath):
 	copyfile('setup.txt', os.path.join(filepath, 'setup.txt'))
+
+#IV related
+
+def SaveMainIV(filepath, currentlist):
+	saveArraysIV(filepath, currentlist)
+	saveConfigIV(filepath)
+
+def saveArraysIV(filepath, currentlist):
+	np.savez(os.path.join(filepath, 'IVDataz'), currentlist = currentlist)
+
+def saveConfigIV(filepath):
+	copyfile('ivsetup.txt', os.path.join(filepath, 'ivsetup.txt'))
+

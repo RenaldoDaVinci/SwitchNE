@@ -74,6 +74,7 @@ for m in range(generations):
 				ser.write(bytelist)
 				#I like sleeping
 				time.sleep(0.5)
+
 				#Read current values, store into an output array
 				current = keithley.curr.get()
 				Outputresult[a][b] = current
