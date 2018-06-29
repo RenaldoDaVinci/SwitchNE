@@ -1,0 +1,8 @@
+#Parameters for the megaiv script
+
+filepath =‘/Users/renhori/Desktop/Twente/Year2/Thesis/Dummy/‘
+name = ‘test’
+
+#voltage in volts. Can only have same abs value for max and min
+Vabs = 1.5
+Vstep =0.005 
