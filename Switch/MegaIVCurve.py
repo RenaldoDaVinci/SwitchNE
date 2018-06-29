@@ -4,7 +4,7 @@ import numpy as np
 import SaveLibrary as SaveLib
 from time import sleep
 '''
-exec(open("ivsetup.txt").read())
+exec(open("setup.txt").read())
 #Initialize the directory to save the files
 savedirectory = SaveLib.createSaveDirectory(filepath, name)
 ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=2, write_timeout = 10)
@@ -36,7 +36,7 @@ for b in range(4):
 		voltrange.append(a[b][0][c])
 
 #initialize the IV numpy array and the bytelist to control switch configs
-currentlist = np.zeros((8,7,2,4*steps))
+currentlist = np.zeros((devs,genes-1,2,4*steps))
 
 for a in range(len(currentlist)):
 	#b corresponds to the connection from electrode 1 to the electrode (b+1)

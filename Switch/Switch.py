@@ -10,17 +10,28 @@ import numpy as np
 import operator
 from time import sleep
 from instrument import Keith2400
+from instrument import PlotBuilding as PlotBuilder
 import serial
 import SaveLibrary as SaveLib
-#setup keithley
-keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
-#set the compliance current
-keithley.compliancei.set(1E-6)
-#set the voltage (in volts)
-keithley.volt.set(1)
 
 #open the set up files, this is not fully incorporated yet (needs to figure out how to sort out the each procedures)
 exec(open("setup.txt").read())
+#setup keithley
+keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
+#set the compliance current
+keithley.compliancei.set(CompI)
+
+#in case it's set way too high, scratch the whole process
+if (Compv > 4):
+	generations = 0
+	genes = 0
+	devs = 0
+	genomes = 0
+
+keithley.compliancev.seet(CompV)
+#set the voltage (in volts)
+keithley.volt.set(Volts)
+
 #Initialize the serial connection to the arduino
 ser = serial.Serial(port='/dev/cu.usbmodem1411',baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 10)
 #Initialize the directory to save the files
@@ -28,15 +39,17 @@ savedirectory = SaveLib.createSaveDirectory(filepath, name)
 #generate necessary arrays to save the datas
 
 
-genearray = np.zeros((generations, genomes, genes, genes))
-outputarray = np.zeros((generations, genomes, genes,genes))
+genearray = np.zeros((generations, genomes, genes, devs))
+outputarray = np.zeros((generations, genomes, devs, devs))
 fitnessarray = np.zeros((generations, genomes))
 successarray = np.zeros((generations, genomes))
-run = 0
+
 #define the initial switches
-array1 = np.random.rand(genomes,genes,genes)
+array1 = np.random.rand(genomes,genes,devs)
 #said arrays contain random value from 0 to 1, round it so it's a same array with binary bits
 NewGenConfigs = np.around(array1)
+
+mainFig = PlotBuilder.MainfigInit(genes = genes, generations = generations)
 
 #start the process, per generation
 for m in range(generations):
@@ -57,35 +70,39 @@ for m in range(generations):
 		#print(bytelist)
 
 		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
+		PlotBuilder.UpdateSwitchConfig(mainFig, array = NewGenConfigs[i])
 		ser.write(bytelist)
 		#print (ser.readline())
+		evaluateinput =[]
+		evaluateoutput = []
 
+		#Make list = [128,64,32,16,8,4,2,1]
 
-		evaluateinput = [128,64,32,16,8,4,2,1]
-		evaluateoutput = [128,64,32,16,8,4,2,1]
+		for a in range(devs):
+			evaluateinput.append(2**(7-a))
+			evaluateoutput.append(2**(7-a))
+
 
 		for a in range(len(evaluateinput)):
 			for b in range(len(evaluateoutput)):
-				#set the first byte(input) into only one port opening
-				bytelist[0] = evaluateinput[a]
+				#set the byte(input) into only one port opening
+				bytelist[InputElec-1] = evaluateinput[a]
 				#set the last byte(output) into only one port opening
-				bytelist[7] = evaluateinput[b]
+				bytelist[OutputElec-1] = evaluateinput[b]
 				#send a bytelist where the first and the last lines are modified, input and output path
 				ser.write(bytelist)
 				#I like sleeping
-				time.sleep(0.5)
+				time.sleep(0.3)
 
 				#Read current values, store into an output array
 				current = keithley.curr.get()
 				Outputresult[a][b] = current
+		PlotBuilder.UpdateIout(mainFig, array = Outputresult)
 
-		#suppose we have an output result:
-		#Outputresult = np.random.rand(genes,genes)
-		#TransOutputresult = np.transpose(Outputresult)
 		F = 0
 		success = 0
 		#Tolerance. if set 0.5, it considers any output that has more than 50% of the highest current as "non-distinguishable"
-		threshold = 0.9
+		threshold = tolerance
 		#Criteria 1
 		for a in range(len(Outputresult)):
 			count = 0
@@ -158,24 +175,25 @@ for m in range(generations):
 	#Announcement
 	print('The winner is the index' + str(winner))
 	print(NewGenConfigs[winner])
-	run = run + 1
+
 	print('with a fitness score of ' + str(F))
-	Hermafrodite = NewGenConfigs[winner]
+	Hermafrodite = np.copy(NewGenConfigs[winner])
 
 	#Save the generation result
 	SaveLib.saveMain(savedirectory, genearray, outputarray, fitnessarray, successarray)
 
 	#Mutation
 	#Winner remains = 1
-	NewGenConfigs[0] = Hermafrodite
+	NewGenConfigs[0] = np.copy(Hermafrodite)
+	PlotBuilder.UpdateBestConfig(mainFig, array = Hermafrodite)
 
 	#Mutate with 10% chance
-	for i in range(1, 8):
-		templist = Hermafrodite
+	for i in range(1, int(genome*4/5)):
+		templist = np.copy(Hermafrodite)
 		duplicate = True
 		while(duplicate):
 			for j in range(genes):
-				for k in range(genes):
+				for k in range(devs):
 					if(np.random.rand() < 0.2):
 						if templist[j, k] == 1:
 							templist[j, k] = 0
@@ -187,14 +205,14 @@ for m in range(generations):
 					if np.array_equal(templist, genearray[a][b]):
 						stack = stack + 1
 			if stack < 1:
-				NewGenConfigs[i] = templist
+				NewGenConfigs[i] = np.copy(templist)
 				duplicate = False
 
 	#complete random 
-	for i in range(8,10):
+	for i in range(int(genome*4/5),genome):
 		duplicate = True
 		while(duplicate):
-			templist = np.random.rand(genes,genes)
+			templist = np.random.rand(genes,devs)
 			templist = np.around(templist)
 			stack = 0
 			for a in range(len(genearray)):
@@ -202,7 +220,9 @@ for m in range(generations):
 					if np.array_equal(templist, genearray[a][b]):
 						stack = stack + 1
 			if stack < 1:
-				NewGenConfigs[i] = templist
+				NewGenConfigs[i] = np.copy(templist)
 				duplicate = False		
 
 #Repeat until all generations meet 
+#don't know why I need this. But the window disappears without this command.
+PlotBuilder.finalMain(mainFig)

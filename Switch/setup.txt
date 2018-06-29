@@ -1,14 +1,48 @@
-#Configure the parameters
+#############Configure the parameters##############
+#This section is for the parameters that are universal to the experiments, do not change unless you know your stuff
 
-#Evolution parameters
+#compliane current
+CompI = 1E-6
+
+#compliance voltage
+CompV = 2
+
+#voltage
+Volts = 2
+
+
+#############Evolution parameters##############
+
 genomes = 5000
 
-genes = 8 
+#genes correspond to the number of electrodes, should remain untouched
+genes = 8
 
+#devs is the number of devices installed 
+devs = 8
+
+#number of generations
 generations = 1
 
-# Save settings
+#Set the tolerance value
+tolerance = 0.8
 
+#FOR THE FULL SEARCH/GENERAL EVOLUTION, WE SET ONLY ONE ELECTRODE AS AN INPUT AND ONE ELECTRODE AS AN OUTPUT
+
+InputElec = 1
+OutputElec = 5
+
+
+#############IV curve parameters##############
+
+#voltage in volts. Can only have same abs value for max and min
+Vabs = 1.5
+Vstep =0.005
+#don't rly need to change electrode num
+genes = 8
+devs = 8
+
+# Save settings
 filepath = '/Users/renhori/Desktop/Twente/Year2/Thesis/Dummy/test'
 name = 'test'
 
