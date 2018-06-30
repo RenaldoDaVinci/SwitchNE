@@ -9,6 +9,8 @@ Created on Thu Jun 21 17:25:11 2018
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+'''
 voltrange = []
 Vabs = 1.5
 Vstep = 0.005
@@ -40,11 +42,18 @@ for a in range(len(test)):
             test[a][b][0][c] = voltrange[c]
             test[a][b][1][c] = i
             i = i+ 0.005
+'''
 
+data= np.load('D:\RenDrive\SwiNEt_30_06_2018_151150_test\IVDataz.npz')
+test =data.f.currentlist
 
+for a in range(0,1204,1):
+    print(str(test[7][0][1][a]))
 
 
 for a in range(len(test)):
     for b in range(len(test[a])):
-        plt.figure()
-        plt.plot(test[a][b][0], test[a][b][1])
+        '''
+        #plt.figure()
+        #plt.plot(test[a][b][0], test[a][b][1])
+        '''
