@@ -1,7 +1,10 @@
 import serial
 import numpy as np
+import time
+from time import sleep
 
 #ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
+ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
 
 
 array1 = np.random.rand(8,8)
@@ -45,8 +48,19 @@ for k in range(len(allzero)):
 	bytelist3.append(tempbits)
 
 x = str(bytelist2)
-x = x.encode('utf-8')
+w = x.encode("utf-8")
 #y is the bytearray
-y = bytearray(bytelist3)
-z = x.encode('ascii')
-#ser.write(y)
+#y = bytearray(x.encode('utf-8'))
+#z = str(bytelist3)
+#z = z.encode('ascii')
+
+#LEt's try something completely new
+#for i in range(len(bytelist)):
+#	time.sleep(1)
+#	print(str(bytelist3[i]).encode('ascii'))
+#	ser.write(str(bytelist3[i]).encode('ascii'))
+
+print(w)
+ser.write(w)
+#ser.write(bytearray(bytelist2))
+#ser.write(chr(49).encode('utf-8'))
