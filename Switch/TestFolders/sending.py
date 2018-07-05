@@ -1,7 +1,7 @@
 import serial
 import numpy as np
 
-ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
+#ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
 
 
 array1 = np.random.rand(8,8)
@@ -44,5 +44,9 @@ for k in range(len(allzero)):
 			#print(tempbits)
 	bytelist3.append(tempbits)
 
+x = str(bytelist2)
+x = x.encode('utf-8')
+#y is the bytearray
 y = bytearray(bytelist3)
-ser.write(y)
+z = x.encode('ascii')
+#ser.write(y)
