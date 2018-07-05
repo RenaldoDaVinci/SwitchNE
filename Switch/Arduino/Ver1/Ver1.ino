@@ -5,7 +5,7 @@ const int clockPin = 13;
 const int dataPin = 11;
 const int max395PowerPin = 12;
 int i=0; // index of the active MAX395 chip (out of 8 connected serially in a row) 
-int flag;
+int flag = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -23,9 +23,12 @@ void setup() {
   SPI.begin();
   }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
-  if ( Serial.available()){
+  while(Serial.available()){
+
+if (flag ==0){
     // cast the string read in an integer 
     SwitchArrayConfig[8] = Serial.read();
     flag= 1;
@@ -44,5 +47,6 @@ void loop() {
     i=0;
     } 
  flag = 0;
+ }
  }
 }

@@ -44,5 +44,5 @@ for k in range(len(allzero)):
 			#print(tempbits)
 	bytelist3.append(tempbits)
 
-y = bytes(bytelist)
+y = bytearray(bytelist3)
 ser.write(y)
