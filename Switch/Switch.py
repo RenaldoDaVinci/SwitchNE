@@ -40,7 +40,7 @@ savedirectory = SaveLib.createSaveDirectory(filepath, name)
 
 
 genearray = np.zeros((generations, genomes, genes, devs))
-outputarray = np.zeros((generations, genomes, devs, devs))
+outputarray = np.zeros((generations, genomes, genes, devs))
 fitnessarray = np.zeros((generations, genomes))
 successarray = np.zeros((generations, genomes))
 

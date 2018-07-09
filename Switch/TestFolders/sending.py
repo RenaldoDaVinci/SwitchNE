@@ -1,16 +1,10 @@
 import serial
 import numpy as np
-<<<<<<< HEAD
-import struct
-
-ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N',dsrdtr=True)
-=======
 import time
 from time import sleep
 
 #ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
-ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
->>>>>>> 4fe6454d7b4b55818cfa5a96c86e426349424861
+ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = False)
 
 
 array1 = np.random.rand(8,8)
@@ -53,33 +47,12 @@ for k in range(len(allzero)):
 			#print(tempbits)
 	bytelist3.append(tempbits)
 
-<<<<<<< HEAD
-#x = str(bytelist2)
-#x = x.encode("utf-8")
-#y is the bytearray
-#y = bytearray(bytelist2)
-#z = str(bytelist2)
-#z = z.encode('ascii')
-#ser.write(x)
-x = 0
-ser.flush()
-ser.write(b'x')
-=======
-x = str(bytelist2)
-w = x.encode("utf-8")
-#y is the bytearray
-#y = bytearray(x.encode('utf-8'))
-#z = str(bytelist3)
-#z = z.encode('ascii')
+ex = [0, 0, 0, 0, 0, 0, 0, 0]
 
-#LEt's try something completely new
-#for i in range(len(bytelist)):
-#	time.sleep(1)
-#	print(str(bytelist3[i]).encode('ascii'))
-#	ser.write(str(bytelist3[i]).encode('ascii'))
+ser.write("<".encode())
+for i in range(len(ex)):
+	send = bytes(ex[i])
+	ser.write(send)
+ser.write(">".encode())
 
-print(w)
-ser.write(w)
-#ser.write(bytearray(bytelist2))
-#ser.write(chr(49).encode('utf-8'))
->>>>>>> 4fe6454d7b4b55818cfa5a96c86e426349424861
+
