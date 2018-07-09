@@ -48,7 +48,7 @@ void recvBytesWithMarkers(){
     }
     if(flag == true){
       digitalWrite(CSPin, LOW);
-      SPI.transfer(receivedBytes[i], 8);
+      SPI.transfer(receivedBytes[i]);
       i++;
       if(i ==8){
         digitalWrite(CSPin, HIGH);

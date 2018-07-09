@@ -3,8 +3,8 @@ import numpy as np
 import time
 from time import sleep
 
-#ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1)
-ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = False)
+ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = True)
+#ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = False)
 
 
 array1 = np.random.rand(8,8)
@@ -47,11 +47,12 @@ for k in range(len(allzero)):
 			#print(tempbits)
 	bytelist3.append(tempbits)
 
-ex = [0, 0, 0, 0, 0, 0, 0, 0]
+ex = [255, 255, 255, 255, 255, 255, 255, 255]
 
 ser.write("<".encode())
 for i in range(len(ex)):
 	send = bytes(ex[i])
+	time.sleep(0.0001)
 	ser.write(send)
 ser.write(">".encode())
 
