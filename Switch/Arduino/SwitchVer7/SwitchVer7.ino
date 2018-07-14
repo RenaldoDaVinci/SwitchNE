@@ -12,7 +12,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(CSPin, OUTPUT);
-  Serial.setTimeout(8);
+  Serial.setTimeout(200);
   SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
   SPI.begin();
 
@@ -30,32 +30,30 @@ void recvBytesWithMarkers(){
   byte StartMark = 0x3C;
   byte EndMark = 0x3E;
   byte switcharray;
-  while (Serial.available() >= 0 && flag == false){
-    switcharray = Serial.read();
-    if (switcharray == StartMark){
-      recvProgress = true;
-      }
-    if(recvProgress == true){
-      if(switcharray != EndMark){
-        receivedBytes[ndx] = switcharray;
-        ndx++;
-        }
-      else if(switcharray == EndMark){
-        recvProgress = false;
-        flag = true;
-        }
+  int counter = 0;
+
+  if(Serial.available() >= 0 && flag==false){
+    switcharray = Serial.parseInt();
+    flag = true;
+    }
+  if(flag == true && switcharray ==StartMark){
+    recvProgress = true;
+    flag = false;
+    if(counter == 0){
+      digitalWrite(CSPin, LOW);
       }
     }
-    if(flag == true){
-      digitalWrite(CSPin, LOW);
-      delay(1);
-      SPI.transfer(receivedBytes[i]);
-      i++;
-      if(i ==8){
-        digitalWrite(CSPin, HIGH);
-        i = 0;
-        ndx = 0;
-        flag == false;
-        }
+  if(flag == true && switcharray ==EndMark){
+    recvProgress = false;
+    flag = false;
+    if(counter ==8){
+      digitalWrite(CSPin, HIGH);
+      counter = 0;
       }
+    }
+  if(flag == true && recvProgress == true){
+    SPI.transfer(switcharray);
+    flag = false;
+    counter++;
+    }
   }

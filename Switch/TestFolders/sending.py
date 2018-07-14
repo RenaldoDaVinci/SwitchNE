@@ -47,13 +47,19 @@ for k in range(len(allzero)):
 			#print(tempbits)
 	bytelist3.append(tempbits)
 
-ex = [255, 255, 255, 255, 255, 255, 255, 255]
+#ex = [0, 0, 0, 0, 0, 0, 0, 0]
+#for n in range(0, 255, 1):
+#	x =str(n)
+#	ser.write(x.encode('ascii'))
+#	print(n)
+#	time.sleep(5)
 
 ser.write("<".encode())
-for i in range(len(ex)):
-	send = bytes(ex[i])
-	time.sleep(0.0001)
-	ser.write(send)
+ser.write("0".encode())
 ser.write(">".encode())
 
-
+'''
+print("Sending ALL")
+ser.write("<0,0,0,0,0,0,0,0>".encode())
+print("DID IT WORK?!?")
+'''

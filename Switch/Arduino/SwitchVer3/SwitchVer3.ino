@@ -36,26 +36,22 @@ void recvBytesWithMarkers(){
       recvProgress = true;
       }
     if(recvProgress == true){
-      if(switcharray != EndMark){
-        receivedBytes[ndx] = switcharray;
-        ndx++;
-        }
-      else if(switcharray == EndMark){
-        recvProgress = false;
-        flag = true;
-        }
+      for(int n = 0; n <=255; n++){
+        digitalWrite(CSPin, LOW);
+        for (i = 0; i < 8; i++){
+      //byte m = (byte)n;
+      SPI.transfer(n);
+      delay(10);
+      }
+      digitalWrite(CSPin,HIGH);
+      Serial.println(String(n));
+      i = 0;
+      delay(1000);
+      }
+      }
+     if(switcharray == EndMark){
+      recvProgress =false;
       }
     }
-    if(flag == true){
-      digitalWrite(CSPin, LOW);
-      delay(1);
-      SPI.transfer(receivedBytes[i]);
-      i++;
-      if(i ==8){
-        digitalWrite(CSPin, HIGH);
-        i = 0;
-        ndx = 0;
-        flag == false;
-        }
-      }
+
   }
