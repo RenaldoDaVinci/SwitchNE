@@ -1,4 +1,4 @@
-__author__ = 'RenH'
+e__author__ = 'RenH'
 '''
 This is a rudimentary model of switch network python code, the first row is dedicated for the input and the last row for the output
 '''

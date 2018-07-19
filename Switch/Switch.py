@@ -1,11 +1,10 @@
 __author__ = 'RenH'
 '''
-This is a rudimentary model of switch network python code, the first row is dedicated for the input and the last row for the output
+This is a rudimentary model of switch network python code, the first row(electrode 5) is dedicated for the input and the fifth row(electrode 1) for the output
 '''
 
 #import necessary libraries
 import time
-import Evo as Evo
 import numpy as np
 import operator
 from time import sleep
@@ -14,31 +13,40 @@ from instrument import PlotBuilding as PlotBuilder
 import serial
 import SaveLibrary as SaveLib
 
-#open the set up files, this is not fully incorporated yet (needs to figure out how to sort out the each procedures)
+#open the set up file
 exec(open("setup.txt").read())
+
 #setup keithley
 keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
 #set the compliance current
 keithley.compliancei.set(CompI)
 
-#in case it's set way too high, scratch the whole process
+
+#in case the compliance voltage is set way too high, scratch the whole process
 if (Compv > 4):
 	generations = 0
 	genes = 0
 	devs = 0
 	genomes = 0
 
-keithley.compliancev.seet(CompV)
-#set the voltage (in volts)
+#Set the compliance voltage
+keithley.compliancev.set(CompV)
+
+#set the voltage from the input (in volts)
 keithley.volt.set(Volts)
 
 #Initialize the serial connection to the arduino
-ser = serial.Serial(port='/dev/cu.usbmodem1411',baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 10)
+ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = True)
+
+#I don't even know if you need this, maybe wait time for the port to open
+#Also gotta implement the try and catch code for if the port is available
+time.sleep(0.5)
+
 #Initialize the directory to save the files
 savedirectory = SaveLib.createSaveDirectory(filepath, name)
+
+
 #generate necessary arrays to save the datas
-
-
 genearray = np.zeros((generations, genomes, genes, devs))
 outputarray = np.zeros((generations, genomes, genes, devs))
 fitnessarray = np.zeros((generations, genomes))
@@ -49,7 +57,12 @@ array1 = np.random.rand(genomes,genes,devs)
 #said arrays contain random value from 0 to 1, round it so it's a same array with binary bits
 NewGenConfigs = np.around(array1)
 
+#method to check if any duplicates exist
+
+#generate the plot figure, this is untested and can seriously influence evolution as their update speed may significantly hinder the process tempo of the GA
 mainFig = PlotBuilder.MainfigInit(genes = genes, generations = generations)
+
+time.sleep(5)
 
 #start the process, per generation
 for m in range(generations):
@@ -59,44 +72,85 @@ for m in range(generations):
 	#per genomes
 	for i in range(len(NewGenConfigs)):
 		bytelist = []
+		sendlist = []
 		
 		for j in range(len(NewGenConfigs[i])):
 			tempbits = 0
 			for k in range(len(NewGenConfigs[i][j])):
+				#for 1 in every location of the matrix, add it to the bit
 				if NewGenConfigs[i][j][k] == 1:
-					tempbits += 2**(7-k)
+					tempbits += 2**k
+			#Bytelist will contain 8 byte(64 bits), starting from the top of the matrix
 			bytelist.append(tempbits)
-		#Sanity Check
-		#print(bytelist)
+
+		#at this point, the bytelist is made, so convert to sendlist
+		
+		for l in range(len(bytelist)):
+			sendlist.append(str(bytelist[i]))
 
 		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
 		PlotBuilder.UpdateSwitchConfig(mainFig, array = NewGenConfigs[i])
-		ser.write(bytelist)
-		#print (ser.readline())
+		#maybe you need time for plot to update?
+		time.sleep(1)
+
+		ser.write("<".encode())
+		ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+ 
+	",".encode() +sendlist[3].encode()+ ",".encode() +sendlist[4].encode()+ ",".encode() +
+	sendlist[5].encode()+ ",".encode() +sendlist[6].encode()+ ",".encode() +sendlist[7].encode())
+		ser.write(">".encode())
+		
+		print ("Array sent")
+
+		time.sleep(0.5)
+
+		receivemessage = ser.readline()
+		receivemessage = receivemessage.strip()
+		receivemessage = receivemessage.split()
+
+		#Print out the message received from Arduino
+		print(receivemessage)
+		
 		evaluateinput =[]
 		evaluateoutput = []
 
-		#Make list = [128,64,32,16,8,4,2,1]
+		#Make list = [1,2,4,8,16,32,64,128], corresponds to one port being open from a row
 
 		for a in range(devs):
-			evaluateinput.append(2**(7-a))
-			evaluateoutput.append(2**(7-a))
+			evaluateinput.append(2**(a))
+			evaluateoutput.append(2**(a))
 
-
+		#Evaluate output
 		for a in range(len(evaluateinput)):
 			for b in range(len(evaluateoutput)):
+				time.sleep(0.5)
 				#set the byte(input) into only one port opening
-				bytelist[InputElec-1] = evaluateinput[a]
+				bytelist[0] = evaluateinput[a]
 				#set the last byte(output) into only one port opening
-				bytelist[OutputElec-1] = evaluateinput[b]
-				#send a bytelist where the first and the last lines are modified, input and output path
-				ser.write(bytelist)
-				#I like sleeping
-				time.sleep(0.3)
+				bytelist[4] = evaluateoutput[b]
+				#send a bytelist where the input and output path are modified
+
+				ser.write("<".encode())
+				ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+
+					",".encode() +sendlist[3].encode()+ ",".encode() +sendlist[4].encode()+ ",".encode() +
+					sendlist[5].encode()+ ",".encode() +sendlist[6].encode()+ ",".encode() +sendlist[7].encode())
+				ser.write(">".encode())
+
+				print ("Array sent")
+
+				time.sleep(0.5)
+
+				receivemessage = ser.readline()
+				receivemessage = receivemessage.strip()
+				receivemessage = receivemessage.split()
+
+				#Print out the message received from Arduino
+				print(receivemessage)
 
 				#Read current values, store into an output array
 				current = keithley.curr.get()
 				Outputresult[a][b] = current
+
+		#After the forloop with a, you should acquire 8 by 8 output array
 		PlotBuilder.UpdateIout(mainFig, array = Outputresult)
 
 		F = 0
@@ -119,6 +173,7 @@ for m in range(generations):
 			elif count > 1:
 				F = F+ -1*count
 			#if no output was HIGH for a particular input, we either have to lower the threshold, or just punish the fitness score
+			#This is not implemented yet since count will be minimum 1, as we are determining by normalizing outputs with respect to the highest current.
 			elif count == 0:
 				F = F - 10
 
@@ -147,21 +202,26 @@ for m in range(generations):
 
 		#count how many distinctions it made
 		for a in range(len(Outputresult)):
+			#Assign a row as a temporary array
 			tempout = Outputresult[a]
+			#set maxi as the highest of that row
 			maxi = max(tempout)
 			for l in range(len(Outputresult[a])):
+				#Identify the location of maximum in the matrix, call it Output[a][l] ,reverse the x and y order
 				if Outputresult[a][l] == maxi:
 					tempx = l
 					tempy = a
 			#now that the locaiton of max is found, transpose and check
 			tempout = TransOutputresult[tempx]
 			maxi = max(tempout)
+
+			#If the transposed row, original column, and the original row had the same value as the maximum, it is "classifiable"
 			if TransOutputresult[tempx][tempy] == maxi:
 				success = success + 1
 
 		successrate.append(success)
 
-		#Genome operation done
+		#Genome operation done, save the result in numpy array
 		genearray[m,i, :, :] = NewGenConfigs[i,:]
 		outputarray[m,i, :, :]=Outputresult
 		fitnessarray[m,i] = F
@@ -169,7 +229,7 @@ for m in range(generations):
 
 
 
-
+	#Identify the winner from that generation by finding the INDEX of the winner
 	winner = Fitnessscore.index(max(Fitnessscore))
 
 	#Announcement
@@ -177,6 +237,7 @@ for m in range(generations):
 	print(NewGenConfigs[winner])
 
 	print('with a fitness score of ' + str(F))
+	#Hermafrodite is the sole winner of the generation
 	Hermafrodite = np.copy(NewGenConfigs[winner])
 
 	#Save the generation result
@@ -187,28 +248,36 @@ for m in range(generations):
 	NewGenConfigs[0] = np.copy(Hermafrodite)
 	PlotBuilder.UpdateBestConfig(mainFig, array = Hermafrodite)
 
-	#Mutate with 10% chance
+	#Mutate with 10% chance for 2-8
 	for i in range(1, int(genome*4/5)):
+		#copy the winner
 		templist = np.copy(Hermafrodite)
+		#while dupilcate is true, it won't allow the mutation to complete
 		duplicate = True
+		restart = True
 		while(duplicate):
 			for j in range(genes):
 				for k in range(devs):
+					#By both rows and columns, roll a die, with a certain chance, if yes, change 1 to 0 and 0 to 1
 					if(np.random.rand() < 0.2):
 						if templist[j, k] == 1:
 							templist[j, k] = 0
 						elif templist[j, k] == 0:
 							templist[j, k] = 1
+			#After the change has been made to the temporary array, set stack variable
 			stack = 0
 			for a in range(len(genearray)):
 				for b in range(len(genearray[a])):
+					#Go through all the genearray, IF the mutated temporary array is identical to the previously existing genome, add a point to the stack
 					if np.array_equal(templist, genearray[a][b]):
 						stack = stack + 1
+			#If stack is increased (at all), stay in the duplicate, remutate the temporary array until no duplicate is found
 			if stack < 1:
 				NewGenConfigs[i] = np.copy(templist)
+				#set duplicate to the false, go out of the while loop, and we can go back to the for loop for mutation
 				duplicate = False
 
-	#complete random 
+	#complete random for 9-10, but with the duplicate check
 	for i in range(int(genome*4/5),genome):
 		duplicate = True
 		while(duplicate):
@@ -222,6 +291,12 @@ for m in range(generations):
 			if stack < 1:
 				NewGenConfigs[i] = np.copy(templist)
 				duplicate = False		
+
+#In the current version, there is a problem with this duplicate checker, we use 8 by 8 array as a genome identification (DNA) 
+#but we really only utilize the switches that are not connected to the input.
+#our duplicate checker will check every bits, therefore, the actual switches used to evolve the connectivity may be the same. 
+#But if the first row, input byte, is different, they'll think it's a different genome, even though the real functionality part is the same.
+#As such, two different genomes with an identical row 2,3,4,6,7,8 and nonidentical row 1 and 5, will be saved, despite them being practically the same
 
 #Repeat until all generations meet 
 #don't know why I need this. But the window disappears without this command.

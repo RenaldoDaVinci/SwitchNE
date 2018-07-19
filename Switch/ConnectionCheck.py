@@ -8,7 +8,8 @@
 #Otherwise there's sometin wong with the inhibitive resistance of the switch, call Martin
 
 
-#This is incomplete
+#This is incomplete, don't test yet
+
 #=======================================================================
 #Import necessary libraries
 import serial
