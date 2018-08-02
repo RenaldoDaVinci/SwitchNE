@@ -47,13 +47,8 @@ for a in range(len(test)):
 data= np.load('D:\RenDrive\SwiNEt_30_06_2018_151150_test\IVDataz.npz')
 test =data.f.currentlist
 
-for a in range(0,1204,1):
-    print(str(test[7][0][1][a]))
+b = 0
 
-
-for a in range(len(test)):
-    for b in range(len(test[a])):
-        '''
-        #plt.figure()
-        #plt.plot(test[a][b][0], test[a][b][1])
-        '''
+for a in range(len(test[b])):
+    plt.figure()
+    plt.plot(test[b][a][0], test[b][a][1])
