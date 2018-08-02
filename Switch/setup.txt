@@ -47,4 +47,4 @@ devs = 8
 #############Save settings#####################
 
 filepath = 'D:\RenDrive\SwiNEt'
-name = 'test'
+name = 'IVTest'

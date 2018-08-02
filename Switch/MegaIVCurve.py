@@ -29,7 +29,7 @@ ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits
 keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
 
 #set the current limit, in Amp
-keithley.compliancei.set(1E-6)
+keithley.compliancei.set(25E-9)
 #set the voltage limit in volts just in case something goes wrong from the set up file. DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
 keithley.compliancev.set(2)
 
@@ -62,7 +62,7 @@ for a in range(len(currentlist)):
 	print('Device '+ str(a+1))
 	#b corresponds to the connection from the electrode 5 to the electrode (b+1)
 	for b in range(len(currentlist[a])):
-		print('To electrode ' + str(b+2))
+		print('To electrode ' + str(b+2) 'of Device ' + str(a+1))
 		#Initialize bytelist (reset the bytelist everytime new scheme is examined)
 		#Initialize sendlist, the array used for actually sending
 		bytelist=[0,0,0,0,0,0,0,0]
@@ -79,32 +79,34 @@ for a in range(len(currentlist)):
 		print("Sending StartMark")
 		ser.write("<".encode())
 
-		time.sleep(0.5)
+		time.sleep(0.2)
 
 		ser.write(sendlist[0].encode() + ",".encode() + sendlist[1].encode() + ",".encode() + sendlist[2].encode() + ",".encode() +
 sendlist[3].encode() + ",".encode() + sendlist[4].encode() + ",".encode() + sendlist[5].encode() + ",".encode() +
  sendlist[6].encode() + ",".encode() +sendlist[7].encode())
 		print("Sending the array")
 
-		time.sleep(0.5)
+		time.sleep(0.2)
 
 
 		print("Sending EndMark")
 		ser.write(">".encode())
 
-		time.sleep(0.5)
+		time.sleep(1)
+
+		print("READY")
 
 		#Switch configuration is set
 
 		#for the range of voltage
 		for c in range(len(voltrange)):
 			#make money get rich
-			time.sleep(0.01)
+			time.sleep(0.05)
 			keithley.volt.set(voltrange[c])
 
 			#This waiting time between setting the voltage and reading current, as well as setting of voltage, can be optimized maybe
 			#If huge hysterisis (and suppose we don't want that), increase this second sleep time to something longer
-			time.sleep(0.01)
+			time.sleep(0.05)
 			current = keithley.curr()
 
 			#Maybe I should change this to nA representation?
