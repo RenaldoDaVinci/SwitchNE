@@ -44,11 +44,12 @@ for a in range(len(test)):
             i = i+ 0.005
 '''
 
-data= np.load('D:\RenDrive\SwiNEt_30_06_2018_151150_test\IVDataz.npz')
+data= np.load('D:\RenDrive\SwiNEt_02_08_2018_175621_IVTest/IVDataz.npz')
 test =data.f.currentlist
 
-b = 0
+b = 8
 
 for a in range(len(test[b])):
     plt.figure()
     plt.plot(test[b][a][0], test[b][a][1])
+    plt.show()

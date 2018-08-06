@@ -36,8 +36,8 @@ tolerance = 0.8
 #voltage in volts. Can only have same abs value for max and min
 #please don't screw this up for the room temp measurements
 
-Vabs = 2
-Vstep =0.02
+Vabs = 0.1
+Vstep =0.01
 
 #Even though device numbers are parametrised here, please don't change. It'll not be compatible with the daisy chained IC chips
 

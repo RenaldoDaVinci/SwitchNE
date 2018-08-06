@@ -62,7 +62,7 @@ for a in range(len(currentlist)):
 	print('Device '+ str(a+1))
 	#b corresponds to the connection from the electrode 5 to the electrode (b+1)
 	for b in range(len(currentlist[a])):
-		print('To electrode ' + str(b+2) + 'of Device ' + str(a+1))
+		print('To electrode ' + str(b+2) + ' of Device ' + str(a+1))
 		#Initialize bytelist (reset the bytelist everytime new scheme is examined)
 		#Initialize sendlist, the array used for actually sending
 		bytelist=[0,0,0,0,0,0,0,0]
@@ -101,17 +101,17 @@ sendlist[3].encode() + ",".encode() + sendlist[4].encode() + ",".encode() + send
 		#for the range of voltage
 		for c in range(len(voltrange)):
 			#make money get rich
-			time.sleep(0.03)
+			time.sleep(0.01)
 			keithley.volt.set(voltrange[c])
 
 			#This waiting time between setting the voltage and reading current, as well as setting of voltage, can be optimized maybe
 			#If huge hysterisis (and suppose we don't want that), increase this second sleep time to something longer
-			time.sleep(0.03)
+			time.sleep(0.04)
 			current = keithley.curr()
 			showcurrent = current * 1000000000
 
 			#Maybe I should change this to nA representation?
-			print(str(voltrange[c]) + 'V' + '        ' + str(showcurrent) + 'nA')
+			print(str(voltrange[c]) + '	V' + '        ' + str(showcurrent) + '	nA')
 			currentlist[a][b][0][c] = voltrange[c]
 			currentlist[a][b][1][c] = current
 			
