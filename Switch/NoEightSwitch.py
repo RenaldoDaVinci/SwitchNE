@@ -46,6 +46,7 @@ time.sleep(0.5)
 savedirectory = SaveLib.createSaveDirectory(filepath, name)
 
 
+
 #generate necessary arrays to save the datas
 genearray = np.zeros((generations, genomes, genes, devs))
 outputarray = np.zeros((generations, genomes, genes, devs))
@@ -94,13 +95,10 @@ for m in range(generations):
 		time.sleep(1)
 
 		ser.write("<".encode())
-		time.sleep(0.2)
 		ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+ 
 	",".encode() +sendlist[3].encode()+ ",".encode() +sendlist[4].encode()+ ",".encode() +
 	sendlist[5].encode()+ ",".encode() +sendlist[6].encode()+ ",".encode() +sendlist[7].encode())
-		time.sleep(0.2)
 		ser.write(">".encode())
-		time.sleep(0.2)
 		
 		print ("Array sent")
 
