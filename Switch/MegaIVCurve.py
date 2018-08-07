@@ -29,9 +29,9 @@ ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits
 keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
 
 #set the current limit, in Amp
-keithley.compliancei.set(25E-9)
+keithley.compliancei.set(1E-6)
 #set the voltage limit in volts just in case something goes wrong from the set up file. DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
-keithley.compliancev.set(2)
+keithley.compliancev.set(4)
 
 #Necessary for the IV curve
 voltrange = []

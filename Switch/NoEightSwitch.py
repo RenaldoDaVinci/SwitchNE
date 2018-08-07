@@ -23,7 +23,7 @@ keithley.compliancei.set(CompI)
 
 
 #in case the compliance voltage is set way too high, scratch the whole process
-if (Compv > 4):
+if (CompV > 4):
 	generations = 0
 	genes = 0
 	devs = 0
@@ -84,7 +84,7 @@ for a in range(len(NewGenConfigs)):
 			newlist = np.random.rand(8,8)
 			templist = np.round(newlist)
 			for c in range(len(nullist)):
-				templist[:,:,nullist[c]] = 0
+				templist[:,nullist[c]] = 0
 
 
 #generate the plot figure, this is untested and can seriously influence evolution as their update speed may significantly hinder the process tempo of the GA
@@ -151,13 +151,14 @@ for m in range(generations):
 			#evaluateoutput.append(2**(a))
 
 		#give number from the makelist that corresponds to the device that are active
-		evaluateinput=[]
-		evaluateoutput=[]
+		evaluateinput=[4,16,64]
+		evaluateoutput=[4,16,64]
 
 		#For the current mode, stick to 1 dev per 1 evaliate
 		Outputresult = np.zeros((devs, devs))
 
 		#Evaluate output
+		p = 1
 		for a in range(len(evaluateinput)):
 			for b in range(len(evaluateoutput)):
 				time.sleep(0.5)
@@ -166,6 +167,10 @@ for m in range(generations):
 				#set the last byte(output) into only one port opening
 				bytelist[4] = evaluateoutput[b]
 				#send a bytelist where the input and output path are modified
+				#reinitialize sendlist
+				sendlist = []
+				for l in range(len(bytelist)):
+					sendlist.append(str(bytelist[i]))
 
 				ser.write("<".encode())
 				ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+
@@ -187,6 +192,8 @@ for m in range(generations):
 				#Read current values, store into an output array
 				current = keithley.curr.get()
 				Outputresult[a][b] = current
+				print("Current recorded " + str(p) + " out of " + str(devs*devs))
+				p = p + 1
 
 		#After the forloop with a, you should acquire dev by dev output array
 		PlotBuilder.UpdateIout(mainFig, array = Outputresult, devs = devs)

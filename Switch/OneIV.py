@@ -17,16 +17,16 @@ ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits
 keithley = Keith2400.Keithley_2400('keithley', 'GPIB0::11')
 
 #set the current limit, in Amp
-keithley.compliancei.set(25E-9)
+keithley.compliancei.set(1E-6)
 #set the voltage limit in volts just in case something goes wrong from the set up file. DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
 keithley.compliancev.set(2)
 
-currentlist = np.zeros(2,4*steps)
 
 #Necessary for the IV curve
 voltrange = []
 steps = int(Vabs/Vstep + 1)
 a = np.zeros((4,1,steps))
+currentlist = np.zeros((2,4*steps))
 
 #Set of voltage range is appended to the voltagerange, formatting of "linespace" forces this part to be split into 4 quadrants, 0 to neg, neg to 0, 0 to pos, pos to 0
 first =(np.linspace(0,-Vabs, steps))
@@ -42,7 +42,7 @@ for b in range(4):
 		voltrange.append(a[b][0][c])
 
 #Change bytelist accordingly
-bytelist = [0,0,0,0,0,0,0,0]
+bytelist = [16,16,16,16,16,16,16,16]
 sendlist = []
 
 for i in range(len(bytelist)):

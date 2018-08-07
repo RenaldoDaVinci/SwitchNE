@@ -8,7 +8,7 @@ from time import sleep
 ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = True)
 #ser = serial.Serial(port='/dev/cu.usbmodem1411', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = True)
 sendlist=[]
-testlist = [0,0,0,0,0,0,0,0]
+testlist = [16,16,16,16,16,16,16,16]
 for i in range(len(testlist)):
 	sendlist.append(str(testlist[i]))
 time.sleep(1)

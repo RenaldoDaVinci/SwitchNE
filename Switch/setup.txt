@@ -2,7 +2,7 @@
 #This section is for the parameters that are universal to the experiments, do not change unless you know your stuff
 
 #compliane current in Amp
-CompI = 10E-6
+CompI = 1E-6
 
 #compliance voltage in volts
 CompV = 2
@@ -14,13 +14,13 @@ Volts = 2
 #############Evolution parameters##############
 
 #genomes, for the full search idk 5000? For the evolution try 10
-genomes = 5000
+genomes = 300
 
 #genes correspond to the number of electrodes, should remain untouched
 genes = 8
 
 #devs is the number of devices installed 
-devs = 8
+devs = 3
 
 #number of generations, for the full search 1, for the evolution however many
 generations = 1
@@ -36,15 +36,11 @@ tolerance = 0.8
 #voltage in volts. Can only have same abs value for max and min
 #please don't screw this up for the room temp measurements
 
-Vabs = 0.1
-Vstep =0.01
+Vabs = 3
+Vstep =0.02
 
-#Even though device numbers are parametrised here, please don't change. It'll not be compatible with the daisy chained IC chips
-
-genes = 8
-devs = 8
 
 #############Save settings#####################
 
 filepath = 'D:\RenDrive\SwiNEt'
-name = 'IVTest'
+name = 'FullSearchTry1'
