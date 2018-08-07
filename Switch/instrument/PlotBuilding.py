@@ -45,7 +45,7 @@ def UpdateBestConfig(mainFig, array):
 	mainFig.axes[-3].imshow(array, cmap = 'gray')
 	plt.pause(0.01)
 
-def UpdateIout(mainFig, array):
+def UpdateIout(mainFig, array, devs):
 	mainFig.axes[-1].imshow(array)
 	k = 0
 	array4 = np.copy(array)
@@ -53,7 +53,7 @@ def UpdateIout(mainFig, array):
 	for i in range(len(array)):
 		for j in range(len(array[i])):
 			array4 = array4.astype(int)
-			array4 = np.reshape(array4,64)
+			array4 = np.reshape(array4,devs*devs)
 			text = mainFig.axes[-1].text(j, i, array4[k], ha="center", va="center", color="w")
 			k= k+1
 	plt.pause(0.01)

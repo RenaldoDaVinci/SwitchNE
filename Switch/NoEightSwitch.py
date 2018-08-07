@@ -45,20 +45,47 @@ time.sleep(0.5)
 #Initialize the directory to save the files
 savedirectory = SaveLib.createSaveDirectory(filepath, name)
 
-
-
 #generate necessary arrays to save the datas
-genearray = np.zeros((generations, genomes, genes, devs))
-outputarray = np.zeros((generations, genomes, genes, devs))
+genearray = np.zeros((generations, genomes, genes, genes))
+outputarray = np.zeros((generations, genomes, devs, devs))
 fitnessarray = np.zeros((generations, genomes))
 successarray = np.zeros((generations, genomes))
 
-#define the initial switches
-array1 = np.random.rand(genomes,genes,devs)
+#define the initial switches, array has to be 8 by 8 because it'll be converted to bytes
+array1 = np.random.rand(genomes,genes,genes)
 #said arrays contain random value from 0 to 1, round it so it's a same array with binary bits
 NewGenConfigs = np.around(array1)
 
-#method to check if any duplicates exist
+#convert the unused device column into 0s, newgenconfig = (genomes, gene, dev) so for all the genomes, convert dev 
+#make a list of numbers (from 0 to 7) where the devices are not installed, please refer to the guideline of which device spot is which
+nullist = [0,1,3,5,7]
+for a in range(len(nullist)):
+	NewGenConfigs[:,:,nullist[a]] = 0
+
+#Check if duplicate exist AFTER converting the unused column to 0
+#For all the genomes
+for a in range(len(NewGenConfigs)):
+	#set switch to true
+	duplicate = True
+	#set temporary list
+	templist = np.copy(NewGenConfigs[a])
+	while(duplicate):
+		stack = 0
+		for b in range(len(NewGenConfigs)):
+			#check if the templist (ones that we are checking for duplicate) are equal to all the ones in newgenconfigs(sweeped by b)
+			if np.array_equal(templist, NewGenConfigs[b]):
+				stack = stack + 1
+
+		if stack == 1:
+			#newgenconfig can stay as it is, as there were only one duplicate(itself)
+			duplicate = False
+		if stack > 1:
+			#if new duplicate is found, change templist and go back to the top of while loop
+			newlist = np.random.rand(8,8)
+			templist = np.round(newlist)
+			for c in range(len(nullist)):
+				templist[:,:,nullist[c]] = 0
+
 
 #generate the plot figure, this is untested and can seriously influence evolution as their update speed may significantly hinder the process tempo of the GA
 mainFig = PlotBuilder.MainfigInit(genes = genes, generations = generations)
@@ -67,11 +94,13 @@ time.sleep(5)
 
 #start the process, per generation
 for m in range(generations):
+	print("Generation " + str(m+1) + " begins")
 	#Define the array to insert the fitness scores
 	Fitnessscore = []
 	successrate = []
 	#per genomes
 	for i in range(len(NewGenConfigs)):
+		print("Genome " + str(i+1) + "begins")
 		bytelist = []
 		sendlist = []
 		
@@ -92,7 +121,7 @@ for m in range(generations):
 		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
 		PlotBuilder.UpdateSwitchConfig(mainFig, array = NewGenConfigs[i])
 		#maybe you need time for plot to update?
-		time.sleep(1)
+		time.sleep(3)
 
 		ser.write("<".encode())
 		ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+ 
@@ -116,9 +145,17 @@ for m in range(generations):
 
 		#Make list = [1,2,4,8,16,32,64,128], corresponds to one port being open from a row
 
-		for a in range(devs):
-			evaluateinput.append(2**(a))
-			evaluateoutput.append(2**(a))
+		#for a in range(devs):
+			#These lines are for doing all 8
+			#evaluateinput.append(2**(a))
+			#evaluateoutput.append(2**(a))
+
+		#give number from the makelist that corresponds to the device that are active
+		evaluateinput=[]
+		evaluateoutput=[]
+
+		#For the current mode, stick to 1 dev per 1 evaliate
+		Outputresult = np.zeros((devs, devs))
 
 		#Evaluate output
 		for a in range(len(evaluateinput)):
@@ -138,7 +175,7 @@ for m in range(generations):
 
 				print ("Array sent")
 
-				time.sleep(0.5)
+				time.sleep(1)
 
 				receivemessage = ser.readline()
 				receivemessage = receivemessage.strip()
@@ -151,8 +188,10 @@ for m in range(generations):
 				current = keithley.curr.get()
 				Outputresult[a][b] = current
 
-		#After the forloop with a, you should acquire 8 by 8 output array
-		PlotBuilder.UpdateIout(mainFig, array = Outputresult)
+		#After the forloop with a, you should acquire dev by dev output array
+		PlotBuilder.UpdateIout(mainFig, array = Outputresult, devs = devs)
+		#give time to update
+		time.sleep(4)
 
 		F = 0
 		success = 0
@@ -180,6 +219,8 @@ for m in range(generations):
 
 		#Criteria 2
 		#Do exactly the same but transposed matrix. Vertical check
+		TransOutputresult = np.copy(Outputresult)
+		TransOutputresult = np.transpose(TransOutputresult)
 		
 		for a in range(len(Outputresult)):
 			count = 0
@@ -244,7 +285,8 @@ for m in range(generations):
 	#Save the generation result
 	SaveLib.saveMain(savedirectory, genearray, outputarray, fitnessarray, successarray)
 
-	#Mutation
+	#Mutation, not exist for the full search
+	'''
 	#Winner remains = 1
 	NewGenConfigs[0] = np.copy(Hermafrodite)
 	PlotBuilder.UpdateBestConfig(mainFig, array = Hermafrodite)
@@ -292,6 +334,7 @@ for m in range(generations):
 			if stack < 1:
 				NewGenConfigs[i] = np.copy(templist)
 				duplicate = False		
+	'''
 
 #In the current version, there is a problem with this duplicate checker, we use 8 by 8 array as a genome identification (DNA) 
 #but we really only utilize the switches that are not connected to the input.
