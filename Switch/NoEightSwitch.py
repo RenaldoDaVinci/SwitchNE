@@ -116,7 +116,7 @@ for m in range(generations):
 		#at this point, the bytelist is made, so convert to sendlist
 		
 		for l in range(len(bytelist)):
-			sendlist.append(str(bytelist[i]))
+			sendlist.append(str(bytelist[l]))
 
 		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
 		PlotBuilder.UpdateSwitchConfig(mainFig, array = NewGenConfigs[i])
@@ -170,7 +170,7 @@ for m in range(generations):
 				#reinitialize sendlist
 				sendlist = []
 				for l in range(len(bytelist)):
-					sendlist.append(str(bytelist[i]))
+					sendlist.append(str(bytelist[l]))
 
 				ser.write("<".encode())
 				ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+
