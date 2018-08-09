@@ -182,6 +182,8 @@ for m in range(generations):
 
 		#Criteria 2
 		#Do exactly the same but transposed matrix. Vertical check
+		TransOutputresult = np.copy(Outputresult)
+		TransOutputresult = np.transpose(TransOutputresult)
 		
 		for a in range(len(Outputresult)):
 			count = 0
