@@ -40,7 +40,7 @@ ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits
 
 #I don't even know if you need this, maybe wait time for the port to open
 #Also gotta implement the try and catch code for if the port is available
-time.sleep(0.5)
+time.sleep(1)
 
 #Initialize the directory to save the files
 savedirectory = SaveLib.createSaveDirectory(filepath, name)
@@ -88,9 +88,9 @@ for a in range(len(NewGenConfigs)):
 
 
 #generate the plot figure, this is untested and can seriously influence evolution as their update speed may significantly hinder the process tempo of the GA
-mainFig = PlotBuilder.MainfigInit(genes = genes, generations = generations)
+mainFig = PlotBuilder.MainfigInitforFullSearch())
 
-time.sleep(5)
+time.sleep(1)
 
 #start the process, per generation
 for m in range(generations):
@@ -119,9 +119,9 @@ for m in range(generations):
 			sendlist.append(str(bytelist[l]))
 
 		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
-		PlotBuilder.UpdateSwitchConfig(mainFig, array = NewGenConfigs[i])
+		PlotBuilder.UpdateCurrentSwitchFullSearch(mainFig, array = NewGenConfigs[i])
 		#maybe you need time for plot to update?
-		time.sleep(3)
+		time.sleep(1)
 
 		ser.write("<".encode())
 		ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+ 
@@ -196,9 +196,10 @@ for m in range(generations):
 				p = p + 1
 
 		#After the forloop with a, you should acquire dev by dev output array
-		PlotBuilder.UpdateIout(mainFig, array = Outputresult, devs = devs)
+		PlotBuilder.UpdateIoutFullSearch(mainFig, array = Outputresult, devs = devs)
+		PlotBuilder.UpdateLastSwitch(mainFig, array = NewGenConfigs[i])
 		#give time to update
-		time.sleep(4)
+		time.sleep(1)
 
 		F = 0
 		success = 0
@@ -275,6 +276,8 @@ for m in range(generations):
 		outputarray[m,i, :, :]=Outputresult
 		fitnessarray[m,i] = F
 		successarray[m,i] = success
+		#Add save library here so just in case, program can terminate midway
+		SaveLib.saveMain(savedirectory, genearray, outputarray, fitnessarray, successarray)
 
 
 

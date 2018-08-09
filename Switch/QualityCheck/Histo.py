@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-exec(open("setup.txt").read())
-data = np.load('/Users/renhori/Desktop/Twente/Year2/Thesis/Dummy/test_22_05_2018_142449_Test1/DataArrays.npz')
+#exec(open("setup.txt").read())
+data = np.load('/Users/renhori/Desktop/SwiNEt_07_08_2018_173315_FullSearchTry1/DataArrays.npz')
 
-f = data.f.fitnessarray
+x = data.f.fitnessarray
 
 '''
 rng = np.random.RandomState(10)  # deterministic random data
@@ -14,7 +14,12 @@ plt.hist(a, bins='auto')  # arguments are passed to np.histogram
 plt.title("Histogram with 'auto' bins")
 plt.show()
 '''
+#plt.figure()
+#b = np.random.rand(100)
+#plt.hist(x)
+#plt.show()
 
-b = np.random.rand(100)
-plt.hist(f)
-plt.show
+print(x)
+x = np.round(x)
+plt.hist(x)
+plt.show()

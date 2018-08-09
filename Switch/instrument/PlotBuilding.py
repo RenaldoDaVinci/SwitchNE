@@ -37,6 +37,31 @@ def MainfigInit(genes, generations):
 	mainFig.subplots_adjust(hspace = 0.1, wspace = 0.1)
 	return mainFig
 
+def MainfigInitforFullSearch():
+	plt.ioff()
+	mainFig = plt.figure()
+	figManager = plt.get_current_fig_manager()
+	#figManager.window.showMaximized()
+	plt.pause(0.01)
+	spec = gridspec.GridSpec(ncols=16, nrows=10)
+
+	axBestConfig = mainFig.add_subplot(spec[3:8, 8:16])
+	#axBestConfig.grid()
+	axBestConfig.set_title('Currently testing Switch Config')
+
+	axSwitchConfig = mainFig.add_subplot(spec[6:10, 0:7])
+	#axSwitchConfig.grid()
+	axSwitchConfig.set_title('Switch configuration for the IOut')
+
+	axIout = mainFig.add_subplot(spec[0:5, 0:7])
+	#axIout.grid()
+	axIout.set_title('CurrentOutput')	
+
+	
+	plt.tight_layout()
+	mainFig.subplots_adjust(hspace = 0.1, wspace = 0.1)
+	return mainFig
+
 def UpdateSwitchConfig(mainFig, array):
 	mainFig.axes[-2].imshow(array, cmap = 'gray')
 	plt.pause(0.01)
@@ -56,6 +81,28 @@ def UpdateIout(mainFig, array, devs):
 			array4 = np.reshape(array4,devs*devs)
 			text = mainFig.axes[-1].text(j, i, array4[k], ha="center", va="center", color="w")
 			k= k+1
+	plt.pause(0.01)
+
+def UpdateCurrentSwitchFullSearch(mainFig, array):
+	mainFig.axes[-3].imshow(array, cmap = 'gray')
+	plt.pause(0.01)
+
+def UpdateIoutFullSearch(mainFig, array, devs):
+	mainFig.axes[-1].imshow(array)
+	k = 0
+	array4 = np.copy(array)
+
+	for i in range(len(array)):
+		for j in range(len(array[i])):
+			array4 = array4.astype(int)
+			array4 = np.reshape(array4,devs*devs)
+			newI = array4[k] * 100000000
+			text = mainFig.axes[-1].text(j, i, newI, ha="center", va="center", color="w")
+			k= k+1
+	plt.pause(0.01)
+
+def UpdateLastSwitch(mainFig, array):
+	mainFig.axes[-2].imshow(array, cmap = 'gray')
 	plt.pause(0.01)
 
 def UpdateSwitchHistory(mainFig, array, genes, currentgen,genearray):
