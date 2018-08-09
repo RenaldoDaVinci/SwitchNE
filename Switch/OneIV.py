@@ -42,7 +42,7 @@ for b in range(4):
 		voltrange.append(a[b][0][c])
 
 #Change bytelist accordingly
-bytelist = [16,16,16,16,16,16,16,16]
+bytelist = [4,4,4,4,4,4,4,4]
 sendlist = []
 
 for i in range(len(bytelist)):

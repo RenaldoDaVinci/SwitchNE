@@ -350,5 +350,10 @@ for m in range(generations):
 #As such, two different genomes with an identical row 2,3,4,6,7,8 and nonidentical row 1 and 5, will be saved, despite them being practically the same
 
 #Repeat until all generations meet 
+
+
+#Finish
+keithley.volt.set(0)
+
 #don't know why I need this. But the window disappears without this command.
 PlotBuilder.finalMain(mainFig)

@@ -9,7 +9,7 @@ Created on Thu Jun 21 17:25:11 2018
 import numpy as np
 import matplotlib.pyplot as plt
 
-data= np.load('D:\RenDrive\SwiNEt_07_08_2018_092718_IVTest\IVDataz.npz')
+data= np.load('D:\RenDrive\SwiNEt_07_08_2018_222309_ThreeDevIVTest\IVDataz.npz')
 result =data.f.currentlist
 
 b = 2
