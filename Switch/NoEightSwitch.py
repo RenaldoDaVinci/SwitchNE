@@ -9,7 +9,8 @@ import numpy as np
 import operator
 from time import sleep
 from instrument import Keith2400
-from instrument import PlotBuilding as PlotBuilder
+#Until plot building memory issue is solved, this remains commented
+#from instrument import PlotBuilding as PlotBuilder
 import serial
 import SaveLibrary as SaveLib
 
@@ -36,7 +37,7 @@ keithley.compliancev.set(CompV)
 keithley.volt.set(Volts)
 
 #Initialize the serial connection to the arduino
-ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 1, dsrdtr = True)
+ser = serial.Serial(port='COM3', baudrate=9600, bytesize=8, parity='N', stopbits=1, write_timeout = 0, dsrdtr = True)
 
 #I don't even know if you need this, maybe wait time for the port to open
 #Also gotta implement the try and catch code for if the port is available
@@ -58,7 +59,7 @@ NewGenConfigs = np.around(array1)
 
 #convert the unused device column into 0s, newgenconfig = (genomes, gene, dev) so for all the genomes, convert dev 
 #make a list of numbers (from 0 to 7) where the devices are not installed, please refer to the guideline of which device spot is which
-nullist = [0,1,3,5,7]
+nullist = [1,6,7]
 for a in range(len(nullist)):
 	NewGenConfigs[:,:,nullist[a]] = 0
 
@@ -88,9 +89,9 @@ for a in range(len(NewGenConfigs)):
 
 
 #generate the plot figure, this is untested and can seriously influence evolution as their update speed may significantly hinder the process tempo of the GA
-mainFig = PlotBuilder.MainfigInitforFullSearch())
+#mainFig = PlotBuilder.MainfigInitforFullSearch()
 
-time.sleep(1)
+time.sleep(0.1)
 
 #start the process, per generation
 for m in range(generations):
@@ -100,6 +101,8 @@ for m in range(generations):
 	successrate = []
 	#per genomes
 	for i in range(len(NewGenConfigs)):
+		#Check the starting marker for the processing time
+		start = time.time()
 		print("Genome " + str(i+1) + "begins")
 		bytelist = []
 		sendlist = []
@@ -119,9 +122,10 @@ for m in range(generations):
 			sendlist.append(str(bytelist[l]))
 
 		#Send 8 byte info to the switch, it is configured in a certain interconnectivity
-		PlotBuilder.UpdateCurrentSwitchFullSearch(mainFig, array = NewGenConfigs[i])
+		#PlotBuilder.UpdateCurrentSwitchFullSearch(mainFig, array = NewGenConfigs[i])
 		#maybe you need time for plot to update?
-		time.sleep(1)
+		#Plotbuilding takes too long, to avoid potential memory leak, this part will be excluded
+		time.sleep(0.01)
 
 		ser.write("<".encode())
 		ser.write(sendlist[0].encode()+ ",".encode() +sendlist[1].encode()+ ",".encode() +sendlist[2].encode()+ 
@@ -131,7 +135,7 @@ for m in range(generations):
 		
 		print ("Array sent")
 
-		time.sleep(0.5)
+		time.sleep(0.01)
 
 		receivemessage = ser.readline()
 		receivemessage = receivemessage.strip()
@@ -139,6 +143,9 @@ for m in range(generations):
 
 		#Print out the message received from Arduino
 		print(receivemessage)
+
+		#Instead of plotting, now we print out 8 by 8 array
+		print(NewGenConfigs[i])
 		
 		evaluateinput =[]
 		evaluateoutput = []
@@ -151,8 +158,8 @@ for m in range(generations):
 			#evaluateoutput.append(2**(a))
 
 		#give number from the makelist that corresponds to the device that are active
-		evaluateinput=[4,16,64]
-		evaluateoutput=[4,16,64]
+		evaluateinput=[1,4,8,16,32]
+		evaluateoutput=[1,4,8,16,32]
 
 		#For the current mode, stick to 1 dev per 1 evaliate
 		Outputresult = np.zeros((devs, devs))
@@ -161,7 +168,7 @@ for m in range(generations):
 		p = 1
 		for a in range(len(evaluateinput)):
 			for b in range(len(evaluateoutput)):
-				time.sleep(0.5)
+				time.sleep(0.01)
 				#set the byte(input) into only one port opening
 				bytelist[0] = evaluateinput[a]
 				#set the last byte(output) into only one port opening
@@ -178,16 +185,16 @@ for m in range(generations):
 					sendlist[5].encode()+ ",".encode() +sendlist[6].encode()+ ",".encode() +sendlist[7].encode())
 				ser.write(">".encode())
 
-				print ("Array sent")
+				#print ("Array sent")
 
-				time.sleep(1)
+				time.sleep(0.1)
 
-				receivemessage = ser.readline()
-				receivemessage = receivemessage.strip()
-				receivemessage = receivemessage.split()
+				#receivemessage = ser.readline()
+				#receivemessage = receivemessage.strip()
+				#receivemessage = receivemessage.split()
 
 				#Print out the message received from Arduino
-				print(receivemessage)
+				#print(receivemessage)
 
 				#Read current values, store into an output array
 				current = keithley.curr.get()
@@ -196,10 +203,13 @@ for m in range(generations):
 				p = p + 1
 
 		#After the forloop with a, you should acquire dev by dev output array
-		PlotBuilder.UpdateIoutFullSearch(mainFig, array = Outputresult, devs = devs)
-		PlotBuilder.UpdateLastSwitch(mainFig, array = NewGenConfigs[i])
+		#PlotBuilder.UpdateIoutFullSearch(mainFig, array = Outputresult, devs = devs)
+		#PlotBuilder.UpdateLastSwitch(mainFig, array = NewGenConfigs[i])
 		#give time to update
-		time.sleep(1)
+		#print(Outputresult)
+		end = time.time()
+		print("Genome " + str(i) + " took %f ms" % ((end - start) * 1000))
+		time.sleep(0.1)
 
 		F = 0
 		success = 0
@@ -359,4 +369,4 @@ for m in range(generations):
 keithley.volt.set(0)
 
 #don't know why I need this. But the window disappears without this command.
-PlotBuilder.finalMain(mainFig)
+#PlotBuilder.finalMain(mainFig)

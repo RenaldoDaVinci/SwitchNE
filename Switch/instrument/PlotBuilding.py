@@ -45,15 +45,15 @@ def MainfigInitforFullSearch():
 	plt.pause(0.01)
 	spec = gridspec.GridSpec(ncols=16, nrows=10)
 
-	axBestConfig = mainFig.add_subplot(spec[3:8, 8:16])
+	axBestConfig = mainFig.add_subplot(spec[8:16,3:8])
 	#axBestConfig.grid()
 	axBestConfig.set_title('Currently testing Switch Config')
 
-	axSwitchConfig = mainFig.add_subplot(spec[6:10, 0:7])
+	axSwitchConfig = mainFig.add_subplot(spec[0:7, 6:10])
 	#axSwitchConfig.grid()
 	axSwitchConfig.set_title('Switch configuration for the IOut')
 
-	axIout = mainFig.add_subplot(spec[0:5, 0:7])
+	axIout = mainFig.add_subplot(spec[0:7, 0:5])
 	#axIout.grid()
 	axIout.set_title('CurrentOutput')	
 

@@ -53,8 +53,8 @@ for b in range(4):
 
 #Let's go
 print('Ready')
-devs = 3
-devicelist = [2,4,6]
+devs = 7
+devicelist = [0,1,2,3,4,5,6,7]
 #initialize the IV numpy array and the bytelist to control switch configs
 currentlist = np.zeros((devs,genes-1,2,4*steps))
 
@@ -112,7 +112,7 @@ sendlist[3].encode() + ",".encode() + sendlist[4].encode() + ",".encode() + send
 
 			#This waiting time between setting the voltage and reading current, as well as setting of voltage, can be optimized maybe
 			#If huge hysterisis (and suppose we don't want that), increase this second sleep time to something longer
-			time.sleep(0.04)
+			time.sleep(0.03)
 			current = keithley.curr()
 			showcurrent = current * 1000000000
 
